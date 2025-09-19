@@ -63,10 +63,9 @@ def handle_hello():
 def signup():
     try:
         data = request.get_json()
-        
+
         email = data.get('email')
         password = str(data.get('password'))
-        
 
         if not email or not password:
             return jsonify({"msg": "Email and password are required"}), 400
@@ -77,7 +76,7 @@ def signup():
         new_user = User(
             email=email,
             password=password
-           
+
         )
 
         db.session.add(new_user)
@@ -112,6 +111,17 @@ def login():
 
     except Exception as e:
         return jsonify({"error": "Server error", "details": str(e)}), 500
+
+
+@app.route('/valid-auth', methods=['GET'])
+@jwt_required()
+def valid_auth():
+    try:
+        # El token ya se valida automáticamente con @jwt_required
+        user_identity = get_jwt_identity()  # normalmente es el user_id o el email
+        return jsonify({"logged": True, "user": user_identity}), 200
+    except Exception as e:
+        return jsonify({"logged": False, "error": str(e)}), 401
 
 
 # this only runs if `$ python src/app.py` is executed
